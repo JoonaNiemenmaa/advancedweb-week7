@@ -46,15 +46,15 @@ router.post("/api/user/register", (request: Request, response: Response) => {
 	const salt = bcrypt.genSaltSync(BCRYPT_ITERATIONS);
 	const hash = bcrypt.hashSync(password, salt);
 
-	users.push({
+	const user: TUser = {
 		email: email,
 		password: hash,
-	});
+	};
+
+	users.push(user);
 
 	response.status(200);
-	response.json({
-		success: "registeration successful",
-	});
+	response.json(user);
 });
 
 router.get("/api/user/list", (request: Request, response: Response) => {
