@@ -51,7 +51,7 @@ router.post("/api/user/register", (request: Request, response: Response) => {
 		password: hash,
 	});
 
-	response.status(400);
+	response.status(200);
 	response.json({
 		success: "registeration successful",
 	});
