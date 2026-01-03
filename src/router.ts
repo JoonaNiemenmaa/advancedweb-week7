@@ -36,7 +36,7 @@ router.post("/api/user/register", (request: Request, response: Response) => {
 	const existing_user = findUser(email);
 
 	if (existing_user) {
-		response.status(400);
+		response.status(403);
 		response.json({
 			error: `email '${email} already in use'`,
 		});
