@@ -1,9 +1,65 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
+import bcrypt from "bcrypt";
+import "express-validator";
+
+const BCRYPT_ITERATIONS = 10;
 
 const router = Router();
 
-router.get("/hello", (request, response) => {
-	response.send("Hello user!");
+type TUser = {
+	email: string;
+	password: string;
+};
+
+const users: TUser[] = [];
+
+function findUser(email: string): TUser | null {
+	for (const user of users) {
+		if (user.email === email) {
+			return user;
+		}
+	}
+	return null;
+}
+
+router.post("/api/user/register", (request: Request, response: Response) => {
+	const email = request.body.email;
+	const password = request.body.password;
+
+	if (!(email && password)) {
+		response.status(400);
+		response.json({
+			error: "please supply an email and password",
+		});
+		return;
+	}
+
+	const existing_user = findUser(email);
+
+	if (existing_user) {
+		response.status(400);
+		response.json({
+			error: `email '${email} already in use'`,
+		});
+		return;
+	}
+
+	const salt = bcrypt.genSaltSync(BCRYPT_ITERATIONS);
+	const hash = bcrypt.hashSync(password, salt);
+
+	users.push({
+		email: email,
+		password: hash,
+	});
+
+	response.status(400);
+	response.json({
+		success: "registeration successful",
+	});
+});
+
+router.get("/api/user/list", (request: Request, response: Response) => {
+	response.json(users);
 });
 
 export default router;
