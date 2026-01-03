@@ -1,6 +1,5 @@
 import { Router, Request, Response } from "express";
 import bcrypt from "bcrypt";
-import "express-validator";
 
 const BCRYPT_ITERATIONS = 10;
 
