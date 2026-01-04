@@ -1,9 +1,40 @@
 import { Router, Request, Response } from "express";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import jwt, { JwtPayload } from "jsonwebtoken";
 
-const SECRET = "secret";
+const SECRET: string | undefined = process.env.SECRET;
 const BCRYPT_ITERATIONS = 10;
+
+interface IPayload extends JwtPayload {
+	email: string;
+}
+
+const validate = (request: Request, response: Response, next: Function) => {
+	const authorization: string | undefined = request.headers.authorization;
+
+	if (!authorization) {
+		return response
+			.status(400)
+			.json({ message: "no authorization header" });
+	}
+
+	if (!SECRET) {
+		return response.status(500).json({ message: "internal server error" });
+	}
+
+	let payload: IPayload;
+	try {
+		payload = jwt.verify(authorization, SECRET) as IPayload;
+	} catch (err) {
+		return response.status(401).json({ message: "invalid token" });
+	}
+
+	if (!findUser(payload.email)) {
+		return response.status(404).json({ message: "no such user" });
+	}
+
+	next();
+};
 
 const router = Router();
 
@@ -96,12 +127,22 @@ router.post("/api/user/login", (request: Request, response: Response) => {
 		email: email,
 	};
 
-	const token = jwt.sign(payload, SECRET);
-	response.json({ success: true, token: token });
+	if (SECRET) {
+		const token = jwt.sign(payload, SECRET);
+		response.json({ success: true, token: token });
+	} else {
+		return response
+			.status(500)
+			.json({ success: false, error: "internal server error" });
+	}
 });
 
 router.get("/api/user/list", (request: Request, response: Response) => {
 	response.json(users);
+});
+
+router.get("/api/private", validate, (request: Request, response: Response) => {
+	response.status(200).json({ message: "This is protected secure route!" });
 });
 
 export default router;
