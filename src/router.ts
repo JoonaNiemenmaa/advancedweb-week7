@@ -9,14 +9,18 @@ interface IPayload extends JwtPayload {
 	email: string;
 }
 
+const BEARER_LENGTH = 7;
+
 const validate = (request: Request, response: Response, next: Function) => {
-	const authorization: string | undefined = request.headers.authorization;
+	let authorization: string | undefined = request.headers.authorization;
 
 	if (!authorization) {
 		return response
 			.status(400)
 			.json({ message: "no authorization header" });
 	}
+
+	authorization = authorization.substring(BEARER_LENGTH);
 
 	if (!SECRET) {
 		return response.status(500).json({ message: "internal server error" });

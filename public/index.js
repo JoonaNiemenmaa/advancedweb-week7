@@ -12,7 +12,7 @@ if (localStorage.token) {
 	const options = {
 		method: "GET",
 		headers: {
-			Authorization: localStorage.token,
+			Authorization: `Bearer ${localStorage.token}`,
 		},
 	};
 
