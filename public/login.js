@@ -23,6 +23,7 @@ login.addEventListener("submit", async (event) => {
 	if (response.success) {
 		console.log("login successful");
 		localStorage.token = response.token;
+		window.location.replace("/");
 	} else {
 		console.log(`error: ${response.error}`);
 	}

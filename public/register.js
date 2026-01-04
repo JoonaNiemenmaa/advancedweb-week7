@@ -22,5 +22,5 @@ register.addEventListener("submit", async (event) => {
 
 	console.log(response);
 
-	window.location.replace("http://localhost:3000/login.html");
+	window.location.replace("/login.html");
 });
