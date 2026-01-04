@@ -1,6 +1,8 @@
 import { Router, Request, Response } from "express";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
+const SECRET = "secret";
 const BCRYPT_ITERATIONS = 10;
 
 const router = Router();
@@ -22,8 +24,8 @@ function findUser(email: string): TUser | null {
 }
 
 router.post("/api/user/register", (request: Request, response: Response) => {
-	const email = request.body.email;
-	const password = request.body.password;
+	const email: string = request.body.email;
+	const password: string = request.body.password;
 
 	if (!(email && password)) {
 		response.status(400);
@@ -55,6 +57,47 @@ router.post("/api/user/register", (request: Request, response: Response) => {
 
 	response.status(200);
 	response.json(user);
+});
+
+router.post("/api/user/login", (request: Request, response: Response) => {
+	const email: string = request.body.email;
+	const password: string = request.body.password;
+
+	if (!(email && password)) {
+		response.status(400);
+		response.json({
+			success: false,
+			error: "please supply an email and password",
+		});
+		return;
+	}
+
+	const user = findUser(email);
+
+	if (!user) {
+		response.status(404);
+		response.json({
+			success: false,
+			error: "could not find user",
+		});
+		return;
+	}
+
+	if (!bcrypt.compareSync(password, user.password)) {
+		response.status(400);
+		response.json({
+			success: false,
+			error: "incorrect password",
+		});
+		return;
+	}
+
+	const payload = {
+		email: email,
+	};
+
+	const token = jwt.sign(payload, SECRET);
+	response.json({ success: true, token: token });
 });
 
 router.get("/api/user/list", (request: Request, response: Response) => {
