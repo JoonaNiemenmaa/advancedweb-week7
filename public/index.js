@@ -3,16 +3,16 @@ const logout = document.getElementById("logout");
 console.log("IM HERE");
 
 logout.addEventListener("click", (event) => {
-	sessionStorage.removeItem("token");
+	localStorage.removeItem("token");
 	window.location.replace("/login.html");
 });
 
-if (sessionStorage.token) {
+if (localStorage.token) {
 	const url = "http://localhost:3000/api/private";
 	const options = {
 		method: "GET",
 		headers: {
-			Authorization: sessionStorage.token,
+			Authorization: localStorage.token,
 		},
 	};
 
